@@ -79,8 +79,8 @@ class _SortImports:
         self.file_path = file_path
         self.current_module_name = current_module_name_from_file_path(file_path)
 
-        self.place_imports = {}  # type: Dict[str, List[str]]
-        self.import_placements = {}  # type: Dict[str, str]
+        self.place_imports: Dict[str, List[str]] = {}
+        self.import_placements: Dict[str, str] = {}
         self.remove_imports = [
             format_simplified(removal) for removal in self.config["remove_imports"]
         ]
@@ -104,20 +104,20 @@ class _SortImports:
                 self.in_lines.append(add_import)
         self.number_of_lines = len(self.in_lines)
 
-        self.out_lines = []  # type: List[str]
-        self.comments = {
+        self.out_lines: List[str] = []
+        self.comments: CommentsDict = {
             "from": {},
             "straight": {},
             "nested": {},
             "above": {"straight": {}, "from": {}},
-        }  # type: CommentsDict
-        self.imports = OrderedDict()  # type: OrderedDict[str, Dict[str, Any]]
-        self.as_map = defaultdict(list)  # type: Dict[str, List[str]]
+        }
+        self.imports: OrderedDict[str, Dict[str, Any]]  = OrderedDict()
+        self.as_map: Dict[str, List[str]] = defaultdict(list)
 
         section_names = self.config["sections"]
-        self.sections = namedtuple("Sections", section_names)(
+        self.sections: Any = namedtuple("Sections", section_names)(
             *[name for name in section_names]
-        )  # type: Any
+        )
         for section in itertools.chain(self.sections, self.config["forced_separate"]):
             self.imports[section] = {"straight": OrderedDict(), "from": OrderedDict()}
 
@@ -677,9 +677,9 @@ class _SortImports:
 
         """
         sort_ignore_case = self.config["force_alphabetical_sort_within_sections"]
-        sections = itertools.chain(
+        sections: Iterable[str] = itertools.chain(
             self.sections, self.config["forced_separate"]
-        )  # type: Iterable[str]
+        )
 
         if self.config["no_sections"]:
             self.imports["no_sections"] = {"straight": [], "from": {}}
@@ -692,7 +692,7 @@ class _SortImports:
                 )
             sections = ("no_sections",)
 
-        output = []  # type: List[str]
+        output: List[str] = []
         pending_lines_before = False
         for section in sections:
             straight_modules = self.imports[section]["straight"]
@@ -710,7 +710,7 @@ class _SortImports:
                 ),
             )
 
-            section_output = []  # type: List[str]
+            section_output: List[str] = []
             if self.config["from_first"]:
                 self._add_from_imports(
                     from_modules, section, section_output, sort_ignore_case
@@ -802,7 +802,7 @@ class _SortImports:
 
         if len(self.out_lines) > imports_tail:
             next_construct = ""
-            self._in_quote = False  # type: Any
+            self._in_quote: Union(Any, str) = False
             tail = self.out_lines[imports_tail:]
 
             for index, line in enumerate(tail):

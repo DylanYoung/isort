@@ -89,7 +89,7 @@ class KnownPatternFinder(BaseFinder):
     def __init__(self, config: Mapping[str, Any], sections: Any) -> None:
         super().__init__(config, sections)
 
-        self.known_patterns = []  # type: List[Tuple[Pattern[str], str]]
+        self.known_patterns: List[Tuple[Pattern[str], str]] = []
         for placement in reversed(self.sections):
             known_placement = KNOWN_SECTION_MAPPING.get(placement, placement)
             config_key = "known_{}".format(known_placement.lower())
@@ -243,7 +243,7 @@ class ReqsBaseFinder(BaseFinder):
         path = os.path.join(path, "mapping")
         with open(path) as f:
             # pypi_name: import_name
-            mappings = {}  # type: Dict[str, str]
+            mappings: Dict[str, str] = {}
             for line in f:
                 import_name, _, pypi_name = line.strip().partition(":")
                 mappings[pypi_name] = import_name
@@ -380,7 +380,7 @@ class DefaultFinder(BaseFinder):
 
 
 class FindersManager:
-    _default_finders_classes = (
+    _default_finders_classes: Sequence[Type[BaseFinder]] = (
         ForcedSeparateFinder,
         LocalFinder,
         KnownPatternFinder,
@@ -388,7 +388,7 @@ class FindersManager:
         PipfileFinder,
         RequirementsFinder,
         DefaultFinder,
-    )  # type: Sequence[Type[BaseFinder]]
+    )
 
     def __init__(
         self,
@@ -397,11 +397,11 @@ class FindersManager:
         finder_classes: Optional[Iterable[Type[BaseFinder]]] = None,
         current_module_name: Optional[str] = None,
     ) -> None:
-        self.verbose = config.get("verbose", False)  # type: bool
+        self.verbose: bool = config.get("verbose", False)
 
         if finder_classes is None:
             finder_classes = self._default_finders_classes
-        finders = []  # type: List[BaseFinder]
+        finders: List[BaseFinder] = []
         for finder_cls in finder_classes:
             try:
                 finders.append(finder_cls(config, sections, current_module_name=current_module_name))
@@ -413,7 +413,7 @@ class FindersManager:
                             finder_cls.__name__, str(exception)
                         )
                     )
-        self.finders = tuple(finders)  # type: Tuple[BaseFinder, ...]
+        self.finders: Tuple[BaseFinder, ...] = tuple(finders)
 
     def find(self, module_name: str) -> Optional[str]:
         for finder in self.finders:
