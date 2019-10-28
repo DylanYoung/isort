@@ -152,7 +152,10 @@ class SortImports:
             extension = file_name.split(".")[-1] if file_name else "py"
 
         self.sorted_imports = _SortImports(
-            file_contents=file_contents, config=self.config, extension=extension
+            file_contents=file_contents,
+            config=self.config,
+            extension=extension,
+            file_path=self.file_path,
         )
         self.output = self.sorted_imports.output
 

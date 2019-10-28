@@ -47,6 +47,7 @@ from . import settings
 from .finders import FindersManager
 from .natural import nsorted
 from .settings import WrapModes
+from .utils import current_module_name_from_file_path
 
 if TYPE_CHECKING:
     from mypy_extensions import TypedDict
@@ -67,10 +68,16 @@ if TYPE_CHECKING:
 
 class _SortImports:
     def __init__(
-        self, file_contents: str, config: Dict[str, Any], extension: str = "py"
+        self,
+        file_contents: str,
+        config: Dict[str, Any],
+        extension: str = "py",
+        file_path: str = None,
     ) -> None:
         self.config = config
         self.extension = extension
+        self.file_path = file_path
+        self.current_module_name = current_module_name_from_file_path(file_path)
 
         self.place_imports = {}  # type: Dict[str, List[str]]
         self.import_placements = {}  # type: Dict[str, str]
@@ -114,7 +121,11 @@ class _SortImports:
         for section in itertools.chain(self.sections, self.config["forced_separate"]):
             self.imports[section] = {"straight": OrderedDict(), "from": OrderedDict()}
 
-        self.finder = FindersManager(config=self.config, sections=self.sections)
+        self.finder = FindersManager(
+            config=self.config,
+            sections=self.sections,
+            current_module_name=self.current_module_name,
+        )
 
         self.index = 0
         self.import_index = -1

@@ -50,9 +50,15 @@ KNOWN_SECTION_MAPPING = {
 
 
 class BaseFinder(metaclass=ABCMeta):
-    def __init__(self, config: Mapping[str, Any], sections: Any) -> None:
+    def __init__(
+        self,
+        config: Mapping[str, Any],
+        sections: Any,
+        current_module_name: Optional[str] = None) -> None
+    ):
         self.config = config
         self.sections = sections
+        self.current_module_name = current_module_name
 
     @abstractmethod
     def find(self, module_name: str) -> Optional[str]:
@@ -74,7 +80,7 @@ class ForcedSeparateFinder(BaseFinder):
 
 class LocalFinder(BaseFinder):
     def find(self, module_name: str) -> Optional[str]:
-        if module_name.startswith("."):
+        if module_name.startswith(".") or module_name.startswith(self.current_module):
             return self.sections.LOCALFOLDER
         return None
 
@@ -389,6 +395,7 @@ class FindersManager:
         config: Mapping[str, Any],
         sections: Any,
         finder_classes: Optional[Iterable[Type[BaseFinder]]] = None,
+        current_module_name: Optional[str] = None,
     ) -> None:
         self.verbose = config.get("verbose", False)  # type: bool
 
@@ -397,7 +404,7 @@ class FindersManager:
         finders = []  # type: List[BaseFinder]
         for finder_cls in finder_classes:
             try:
-                finders.append(finder_cls(config, sections))
+                finders.append(finder_cls(config, sections, current_module_name=current_module_name))
             except Exception as exception:
                 # if one finder fails to instantiate isort can continue using the rest
                 if self.verbose:

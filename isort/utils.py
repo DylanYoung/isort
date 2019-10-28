@@ -1,7 +1,25 @@
 import os
 import sys
 from contextlib import contextmanager
-from typing import Any, Container, Iterable, Iterator, List
+from typing import Any, Container, Iterable, Iterator, List, Optional
+
+
+def current_module_name_from_file_path(file_path: str) -> Optional[str]:
+    if file_path is None:
+        return None
+
+    reversed_module_list: List[str] = []
+    directory, file_name = os.path.split(file_path)
+
+    reversed_module_list.append(file_name.split('.')[0])
+
+    for dirpath, dirnames, filenames in os.walk(directory, topdown=False):
+        print(dirpath, dirnames, filenames)
+        if '__init__.py' not in filenames:
+            break
+        reversed_module_list.append(os.path.basename(dirpath))
+
+    return '.'.join(reversed(reversed_module_list))
 
 
 def exists_case_sensitive(path: str) -> bool:
