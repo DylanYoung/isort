@@ -50,7 +50,7 @@ def chdir(path: str) -> Iterator[None]:
 
 
 def union(a: Iterable[Any], b: Iterable[Any]) -> List[Any]:
-    """ Return a list of items that are in `a` or `b`
+    """ Return a list of items that are in `a` or `b` and removes any duplicates
     """
     u = []  # type: List[Any]
     for item in a:
